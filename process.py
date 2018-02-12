@@ -15,37 +15,52 @@ class Process:
       self.bursts = [int(i) for i in p[2:]]
     self.nextBurst = int(p[2])
 
+    self.new = True
+    self.stats = [int(p[1]), 0, 0]
+
   def __str__(self):
-    return self.name + "\t" + str(self.arrivalTime) + "\t" + str(self.bursts)
+    return ("Name: " + self.name + 
+    "\nArrival: " + str(self.arrivalTime) + 
+    "\nBursts " + str(self.bursts) + 
+    "\nNext Burst " + str(self.nextBurst) + 
+    "\nNew? " + str(self.new))
 
-  def run(self, start):
-    end = start + self.nextBurst
-    if(len(self.bursts) > 1):
-      self.arrivalTime += self.burst[0]
-      self.arrivalTime += self.bursts[1]
+  def run(self, start, timeSlice = 0):
+    self.new = False
 
-      if(self.repeating):
-        if(len(self.bursts)%2 == 0):
-          self.bursts = self.bursts[2:] + [self.bursts[0], self.bursts[1]]
+    if(timeSlice and self.nextBurst > timeSlice):
+      end = start + timeSlice
+
+      self.arrivalTime += timeSlice
+      self.nextBurst -= timeSlice
+    else:
+      end = start + self.nextBurst
+
+      if(len(self.bursts) > 1):
+        self.arrivalTime += self.bursts[0]
+        self.arrivalTime += self.bursts[1]
+
+        if(self.repeating):
+          if(len(self.bursts)%2 == 0):
+            self.bursts = self.bursts[2:] + [self.bursts[0], self.bursts[1]]
+          else:
+            self.bursts = self.bursts[2:-1] + [self.bursts[0]+self.bursts[-1], self.bursts[1]]
         else:
-          self.bursts = self.bursts[2:-1] + [self.bursts[0]+self.bursts[-1], self.bursts[1]]
-      else:
-        self.bursts = self.bursts[2:]
-    else:
-      self.arrivalTime = None
+          self.bursts = self.bursts[2:]
 
-    if(len(self.bursts) > 0):
-      self.nextBurst = self.bursts[0]
-    else:
-      self.nextBurst = None
+        self.nextBurst = self.bursts[0]
+      else:
+        self.arrivalTime = None
+        self.nextBurst = None
 
     return end
 
 def insertByArrival(processes, p):
   for i, process in enumerate(processes):
-    if(process.nextBurst < p.nextBurst):
+    if(p.arrivalTime < process.arrivalTime):
       processes.insert(i, p)
       return
+  processes.append(p)
 
 
 if __name__ == '__main__':
