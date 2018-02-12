@@ -62,6 +62,12 @@ def insertByArrival(processes, p):
       return
   processes.append(p)
 
+def printStats(finishedProcesses):
+  turnaroundTimes = [process.stats[2]-process.stats[0] for process in finishedProcesses]
+  responseTimes = [process.stats[1]-process.stats[0] for process in finishedProcesses]
+  print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(finishedProcesses)))
+  print("\tAverage Response Time: " + str(float(sum(responseTimes))/len(finishedProcesses)))
+
 
 if __name__ == '__main__':
   infile = open("in.txt")

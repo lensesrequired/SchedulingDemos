@@ -7,29 +7,23 @@ def FCFS(processes):
   print("\t", end = "")
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
-  arrivalTimes = []
-  startTimes = []
-  finishTimes = []
+  finishedProcesses = []
 
   t = 0
   while(len(processes) > 0):
     p = processes.pop(0)
 
-    arrivalTimes.append(p.arrivalTime)
     if(t < p.arrivalTime):
       t = p.arrivalTime
       print(str(t) + ":" + p.name, end = "  ")
     else:
       print(str(t) + ":" + p.name, end = "  ")
-    startTimes.append(t)
+    p.stats[1] = t
     t = p.run(t)
-    finishTimes.append(t)
-  print(str(t) + ":END")
+    p.stats[2] = t
+    print(str(t) + ":END")
 
-  turnaroundTimes = [finishTimes[i]-arrivalTimes[i] for i in range(len(arrivalTimes))]
-  responseTimes = [startTimes[i]-arrivalTimes[i] for i in range(len(arrivalTimes))]
-  print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(arrivalTimes)))
-  print("\tAverage Response Time: " + str(float(sum(responseTimes))/len(arrivalTimes)))
+  printStats(finishedProcesses)
 
 def RR(processes):
   timeSlice = int(input("Timeslice? "))
