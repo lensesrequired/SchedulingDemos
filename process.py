@@ -75,5 +75,7 @@ if __name__ == '__main__':
   for line in infile:
     p = Process(line)
     print(p.name, p.bursts)
+    if(p):
+      print("Hi")
 
   infile.close()

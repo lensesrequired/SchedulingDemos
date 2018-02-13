@@ -73,59 +73,42 @@ def SJF(processes):
   finishedProcesses = []
 
   t = 0
-  print()
-  for p in processes:
-    print(p)
-    print()
-  while(len(processes) > 1):
+  while(len(processes) > 0):
     p = processes.pop(0)
-    p2 = processes.pop(0)
 
-    if(t < p.arrivalTime):
-      t = p.arrivalTime
-      print(str(t) + ":" + p.name, end = "  ")
-    else:
-      print(str(t) + ":" + p.name, end = "  ")
-    if(p.new):
-      p.stats[1] = t
+    reinsert = False
+    pop = 0
+    for i, process in enumerate(processes):
+      if(p.arrivalTime >= process.arrivalTime and p.nextBurst > process.nextBurst):
+        reinsert = p
+        pop = i
+        p = process
+      else:
+        if(t < p.arrivalTime):
+          t = p.arrivalTime
+          print(str(t) + ":" + p.name, end = "  ")
+        else:
+          print(str(t) + ":" + p.name, end = "  ")
 
-    if(p2.arrivalTime < (p.arrivalTime + p.nextBurst) and 
-      p2.nextBurst < (p.nextBurst - (p2.arrivalTime-p.arrivalTime))):
-      t = p.run(t, p2.arrivalTime-p.arrivalTime)
+        if(p.new):
+          p.stats[1] = t
+
+        if(p.arrivalTime + p.nextBurst > process.arrivalTime):
+          if(p.nextBurst-process.arrivalTime > process.nextBurst):
+            t = p.run(t, process.arrivalTime - t)
+        else:
+          t = p.run(t)
+          p.stats[2] = t
+          finishedProcesses.append(p)
+          break
+
+    if(reinsert):
+      processes.pop(pop)
+      insertByArrival(processes, reinsert)
+    if(p.nextBurst):
       insertByArrival(processes, p)
-      processes.insert(0, p2)
-      print()
-      for p in processes:
-        print(p)
-        print()
-    else:
-      t = p.run(t)
-      insertByArrival(processes, p2)
-      p.stats[2] = t
-      finishedProcesses.append(p)
-      print()
-      for p in processes:
-        print(p)
-        print()
 
-  p = processes.pop(0)
-
-  if(t < p.arrivalTime):
-    t = p.arrivalTime
-    print(str(t) + ":" + p.name, end = "  ")
-  else:
-    print(str(t) + ":" + p.name, end = "  ")
-  if(p.new):
-    p.stats[1] = t
-
-  t = p.run(t)
-  p.stats[2] = t
-  print()
-  for p in processes:
-    print(p)
-    print()
-  finishedProcesses.append(p)
-
+  
   print(str(t) + ":END")
 
   printStats(finishedProcesses)
