@@ -20,10 +20,10 @@ class Process:
 
   def __str__(self):
     return ("Name: " + self.name + 
-    "\nArrival: " + str(self.arrivalTime) + 
-    "\nBursts " + str(self.bursts) + 
-    "\nNext Burst " + str(self.nextBurst) + 
-    "\nNew? " + str(self.new))
+    "  Arrival: " + str(self.arrivalTime) + 
+    "  Bursts " + str(self.bursts) + 
+    "  Next Burst " + str(self.nextBurst) + 
+    "  New? " + str(self.new))
 
   def run(self, start, timeSlice = 0):
     self.new = False

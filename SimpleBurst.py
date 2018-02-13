@@ -33,6 +33,7 @@ def FCFS(processes):
 
 def RR(processes):
   timeSlice = int(input("Timeslice? "))
+  #timeSlice = 2
 
   processes.sort(key = operator.attrgetter('arrivalTime'))
   finishedProcesses = []
@@ -72,6 +73,10 @@ def SJF(processes):
   finishedProcesses = []
 
   t = 0
+  print()
+  for p in processes:
+    print(p)
+    print()
   while(len(processes) > 1):
     p = processes.pop(0)
     p2 = processes.pop(0)
@@ -89,11 +94,19 @@ def SJF(processes):
       t = p.run(t, p2.arrivalTime-p.arrivalTime)
       insertByArrival(processes, p)
       processes.insert(0, p2)
+      print()
+      for p in processes:
+        print(p)
+        print()
     else:
       t = p.run(t)
       insertByArrival(processes, p2)
       p.stats[2] = t
       finishedProcesses.append(p)
+      print()
+      for p in processes:
+        print(p)
+        print()
 
   p = processes.pop(0)
 
@@ -107,6 +120,10 @@ def SJF(processes):
 
   t = p.run(t)
   p.stats[2] = t
+  print()
+  for p in processes:
+    print(p)
+    print()
   finishedProcesses.append(p)
 
   print(str(t) + ":END")
@@ -123,8 +140,8 @@ if __name__ == '__main__':
     p = Process(line)
     processes.append(p)
 
-  FCFS(copy.deepcopy(processes))
-  RR(copy.deepcopy(processes))
+  #FCFS(copy.deepcopy(processes))
+  #RR(copy.deepcopy(processes))
   SJF(copy.deepcopy(processes))
 
   infile.close()
