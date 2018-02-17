@@ -2,7 +2,7 @@ from process import *
 import operator
 import copy
 
-def SJFApprox(processes, alpha, tau_naught):
+def SJFApprox(processes, maxSwitch, alpha, tau_naught):
   print("Aproximation results:")
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
@@ -41,9 +41,10 @@ def SJFApprox(processes, alpha, tau_naught):
     shorter = False
     for i, process in enumerate(processes[jump-1:]):                      #-1 because pop...
       if(process.arrivalTime < p.arrivalTime + p.approx):
-        if(process.aprocc < p.approx-(process.arrivalTime-p.arrivalTime)):
+        if(process.approx < p.approx-(process.arrivalTime-p.arrivalTime)):
           shorter  = True
           t, ioInfo = p.run(t, io, process.arrivalTime - p.arrivalTime)
+          p.calcApprox(alpha)
           io = ioInfo[0]
           ioSched += ioInfo[1]
 
@@ -56,6 +57,7 @@ def SJFApprox(processes, alpha, tau_naught):
 
     if(not shorter):
       t, ioInfo = p.run(t, io)
+      p.calcApprox(alpha)
       io = ioInfo[0]
       ioSched += ioInfo[1]
 
@@ -150,14 +152,16 @@ def SJF(processes, maxSwitch):
 if __name__ == '__main__':
   infile = open("in.txt")
 
+  alpha = float(input("Initial actual burst weight? "))
+  tau_naught = int(input("Initial prediction? "))
   processes = []
   for line in infile:
     line = line.strip()
     p = Process(line)
     processes.append(p)
+  for p in processes:
+    p.approx = tau_naught
 
-  alpha = int(input("Initial actual burst weight? "))
-  tau_naught = int(input("Initial prediction? "))
-  SJFApprox(copy.deepcopy(processes), alpha, tau_naught)
+  SJFApprox(copy.deepcopy(processes), 20, alpha, tau_naught)
 
   infile.close()

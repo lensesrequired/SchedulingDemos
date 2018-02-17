@@ -46,43 +46,16 @@ class Process:
     else:
       self.bursts = self.bursts[2:]
 
+  def calcApprox(self, alpha):
+    self.approx = alpha*self.lastBurst + (1-alpha)*self.approx
+    if(self.approx < 1):
+      self.approx = 1
+    else:
+      self.approx = round(self.approx)
+
   def run(self, start, io, timeSlice = 0):
     ioStr = ""
     self.new = False
-
-    if(timeSlice and self.nextBurst > timeSlice):
-      end = start + timeSlice
-
-      self.arrivalTime += timeSlice
-      self.nextBurst -= timeSlice
-      self.lastBurst = timeSlice
-    else:
-      end = start + self.nextBurst
-
-      if(len(self.bursts) > 1):
-        self.arrivalTime += self.nextBurst
-
-        io, ioStr = self.ioNonsense(io, ioStr)
-        
-        self.repeatingNonsense()
-
-        self.lastBurst = self.nextBurst
-        self.nextBurst = self.bursts[0]
-      else:
-        self.arrivalTime = None
-        self.nextBurst = None
-
-    return end, (io, ioStr)
-
-  def runApprox(self, start, io, alpha, tau_prev):
-    ioStr = ""
-    self.new = False
-
-    timeSlice = alpha*self.lastBurst + (1-alpha)*tau_prev
-    if(timeSlice < 1):
-      timeSlice = 1
-    else:
-      
 
     if(timeSlice and self.nextBurst > timeSlice):
       end = start + timeSlice
