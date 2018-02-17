@@ -7,13 +7,13 @@ class Process:
     self.name = p[0]
     self.arrivalTime = int(p[1])
 
-
     self.repeating = (p[-1] == '-1')
     if(self.repeating):
       self.bursts = [int(i) for i in p[2:-1]]
     else:
       self.bursts = [int(i) for i in p[2:]]
     self.nextBurst = int(p[2])
+    self.lastBurst = 0
 
     self.new = True
     self.stats = [int(p[1]), 0, 0]
@@ -25,7 +25,29 @@ class Process:
     "  Next Burst " + str(self.nextBurst) + 
     "  New? " + str(self.new))
 
-  def run(self, start, timeSlice = 0):
+  def ioNonsense(self, io, ioStr):
+    if(self.arrivalTime < io):
+      self.arrivalTime = io
+    elif(self.arrivalTime > io):
+      ioStr += (str(io) + ":IDLE  ")
+
+    ioStr += (str(self.arrivalTime) + ":" + self.name + "  ")
+    self.arrivalTime += self.bursts[1]
+    io += self.bursts[1]
+
+    return io, ioStr
+
+  def repeatingNonsense(self):
+    if(self.repeating):
+      if(len(self.bursts)%2 == 0):
+        self.bursts = self.bursts[2:] + [self.bursts[0], self.bursts[1]]
+      else:
+        self.bursts = self.bursts[2:-1] + [self.bursts[0]+self.bursts[-1], self.bursts[1]]
+    else:
+      self.bursts = self.bursts[2:]
+
+  def run(self, start, io, timeSlice = 0):
+    ioStr = ""
     self.new = False
 
     if(timeSlice and self.nextBurst > timeSlice):
@@ -33,27 +55,58 @@ class Process:
 
       self.arrivalTime += timeSlice
       self.nextBurst -= timeSlice
+      self.lastBurst = timeSlice
     else:
       end = start + self.nextBurst
 
       if(len(self.bursts) > 1):
-        self.arrivalTime += self.bursts[0]
-        self.arrivalTime += self.bursts[1]
+        self.arrivalTime += self.nextBurst
 
-        if(self.repeating):
-          if(len(self.bursts)%2 == 0):
-            self.bursts = self.bursts[2:] + [self.bursts[0], self.bursts[1]]
-          else:
-            self.bursts = self.bursts[2:-1] + [self.bursts[0]+self.bursts[-1], self.bursts[1]]
-        else:
-          self.bursts = self.bursts[2:]
+        io, ioStr = self.ioNonsense(io, ioStr)
+        
+        self.repeatingNonsense()
 
+        self.lastBurst = self.nextBurst
         self.nextBurst = self.bursts[0]
       else:
         self.arrivalTime = None
         self.nextBurst = None
 
-    return end
+    return end, (io, ioStr)
+
+  def runApprox(self, start, io, alpha, tau_prev):
+    ioStr = ""
+    self.new = False
+
+    timeSlice = alpha*self.lastBurst + (1-alpha)*tau_prev
+    if(timeSlice < 1):
+      timeSlice = 1
+    else:
+      
+
+    if(timeSlice and self.nextBurst > timeSlice):
+      end = start + timeSlice
+
+      self.arrivalTime += timeSlice
+      self.nextBurst -= timeSlice
+      self.lastBurst = timeSlice
+    else:
+      end = start + self.nextBurst
+
+      if(len(self.bursts) > 1):
+        self.arrivalTime += self.nextBurst
+
+        io, ioStr = self.ioNonsense(io, ioStr)
+        
+        self.repeatingNonsense()
+
+        self.lastBurst = self.nextBurst
+        self.nextBurst = self.bursts[0]
+      else:
+        self.arrivalTime = None
+        self.nextBurst = None
+
+    return end, (io, ioStr)
 
 def insertByArrival(processes, p):
   for i, process in enumerate(processes):
@@ -65,8 +118,11 @@ def insertByArrival(processes, p):
 def printStats(finishedProcesses):
   turnaroundTimes = [process.stats[2]-process.stats[0] for process in finishedProcesses]
   responseTimes = [process.stats[1]-process.stats[0] for process in finishedProcesses]
-  print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(finishedProcesses)))
-  print("\tAverage Response Time: " + str(float(sum(responseTimes))/len(finishedProcesses)))
+  if(len(finishedProcesses) == 0):
+    print("No finished processes")
+  else:
+    print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(finishedProcesses)))
+    print("\tAverage Response Time: " + str(float(sum(responseTimes))/len(finishedProcesses)))
 
 
 if __name__ == '__main__':

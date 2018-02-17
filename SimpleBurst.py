@@ -22,7 +22,7 @@ def FCFS(processes):
     else:
       print(str(t) + ":" + p.name, end = "  ")
     startTimes.append(t)
-    t = p.run(t)
+    t, ioInfo = p.run(t, 0)
     finishTimes.append(t)
   print(str(t) + ":END")
 
@@ -53,7 +53,7 @@ def RR(processes):
     if(p.new):
       p.stats[1] = t
 
-    t = p.run(t, timeSlice)
+    t, ioInfo = p.run(t, 0, timeSlice)
 
     if(p.nextBurst):
       insertByArrival(processes, p)
@@ -74,40 +74,48 @@ def SJF(processes):
 
   t = 0
   while(len(processes) > 0):
-    p = processes.pop(0)
-
-    reinsert = False
-    pop = 0
+    a = processes[0].arrivalTime
+    b = processes[0].nextBurst
+    p = 0
+    jump = 1
     for i, process in enumerate(processes):
-      if(p.arrivalTime >= process.arrivalTime and p.nextBurst > process.nextBurst):
-        reinsert = p
-        pop = i
-        p = process
+      if(process.arrivalTime == a):
+        if(process.nextBurst < b):
+          b = process.nextBurst
+          p = i
       else:
-        if(t < p.arrivalTime):
-          t = p.arrivalTime
-          print(str(t) + ":" + p.name, end = "  ")
-        else:
-          print(str(t) + ":" + p.name, end = "  ")
+        jump = i
+        break
 
-        if(p.new):
-          p.stats[1] = t
+    p = processes.pop(p)
+    if(t < p.arrivalTime):
+      t = p.arrivalTime
+      print(str(t) + ":" + p.name, end = "  ")
+    else:
+      print(str(t) + ":" + p.name, end = "  ")
 
-        if(p.arrivalTime + p.nextBurst > process.arrivalTime):
-          if(p.nextBurst-process.arrivalTime > process.nextBurst):
-            t = p.run(t, process.arrivalTime - t)
-        else:
-          t = p.run(t)
-          p.stats[2] = t
-          finishedProcesses.append(p)
+    if(p.new):
+      p.stats[1] = t
+
+    shorter = False
+    for i, process in enumerate(processes[jump-1:]):                      #-1 because pop...
+      if(process.arrivalTime < p.arrivalTime + p.nextBurst):
+        if(process.nextBurst < p.nextBurst-(process.arrivalTime-p.arrivalTime)):
+          shorter  = True
+          t, ioInfo = p.run(t, 0, process.arrivalTime - p.arrivalTime)
+          for proc in processes[0:jump - 1 + i]:
+            proc.arrivalTime = process.arrivalTime
+          insertByArrival(processes, p)
           break
+      else:
+        break
 
-    if(reinsert):
-      processes.pop(pop)
-      insertByArrival(processes, reinsert)
-    if(p.nextBurst):
-      insertByArrival(processes, p)
-
+    if(not shorter):
+      t, ioInfo = p.run(t, 0)
+      for process in processes:
+        process.arrivalTime = t
+      p.stats[2] = t
+      finishedProcesses.append(p)
   
   print(str(t) + ":END")
 
@@ -115,7 +123,7 @@ def SJF(processes):
 
 
 if __name__ == '__main__':
-  infile = open("in.txt")
+  infile = open("in2.txt")
 
   processes = []
   for line in infile:
@@ -123,8 +131,8 @@ if __name__ == '__main__':
     p = Process(line)
     processes.append(p)
 
-  #FCFS(copy.deepcopy(processes))
-  #RR(copy.deepcopy(processes))
+  FCFS(copy.deepcopy(processes))
+  RR(copy.deepcopy(processes))
   SJF(copy.deepcopy(processes))
 
   infile.close()
