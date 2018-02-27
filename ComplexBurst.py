@@ -173,17 +173,3 @@ if __name__ == '__main__':
   SJF(copy.deepcopy(processes), maxSwitch)
 
   infile.close()
-
-  # infile = open("in2.txt")
-
-  # processes = []
-  # for line in infile:
-  #   line = line.strip()
-  #   p = Process(line)
-  #   processes.append(p)
-
-  # FCFS(copy.deepcopy(processes))
-  # RR(copy.deepcopy(processes))
-  # SJF(copy.deepcopy(processes))
-
-  # infile.close()

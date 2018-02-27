@@ -6,6 +6,7 @@ class Process:
 
     self.name = p[0]
     self.arrivalTime = int(p[1])
+    self.priority = 0
 
     self.repeating = (p[-1] == '-1')
     if(self.repeating):
@@ -22,6 +23,7 @@ class Process:
     return ("Name: " + self.name + 
     "  Arrival: " + str(self.arrivalTime) + 
     "  Bursts " + str(self.bursts) + 
+    "  Priority " + str(self.priority) +
     "  Next Burst " + str(self.nextBurst) + 
     "  New? " + str(self.new))
 
@@ -63,6 +65,7 @@ class Process:
       self.arrivalTime += timeSlice
       self.nextBurst -= timeSlice
       self.lastBurst = timeSlice
+      self.priority += 1
     else:
       end = start + self.nextBurst
 
@@ -81,6 +84,12 @@ class Process:
 
     return end, (io, ioStr)
 
+def resetAllPriorities(priorities):
+  for processes in priorities[1:]:
+    for p in processes:
+      p.priority = 0
+      insertByArrival(priorities[0], p)
+
 def insertByArrival(processes, p):
   for i, process in enumerate(processes):
     if(p.arrivalTime < process.arrivalTime):
@@ -88,11 +97,18 @@ def insertByArrival(processes, p):
       return
   processes.append(p)
 
-def printStats(finishedProcesses):
+def printStats(finishedProcesses, processes):
   turnaroundTimes = [process.stats[2]-process.stats[0] for process in finishedProcesses]
   responseTimes = [process.stats[1]-process.stats[0] for process in finishedProcesses]
+  
+  finiteFinished = True
+  for p in processes:
+    finiteFinished = p.repeating
+
   if(len(finishedProcesses) == 0):
     print("No finished processes")
+  else if(not finiteFinished):
+    print("Not all finite processes completed")
   else:
     print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(finishedProcesses)))
     print("\tAverage Response Time: " + str(float(sum(responseTimes))/len(finishedProcesses)))
