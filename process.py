@@ -115,9 +115,9 @@ def printStats(finishedProcesses, processes):
       break
 
   if(len(finishedProcesses) == 0):
-    print("No finished processes")
+    print("\tNo finished processes")
   elif(not finiteFinished):
-    print("Not all finite processes completed")
+    print("\tNot all finite processes completed")
   else:
     print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(finishedProcesses)))
     print("\tAverage Response Time: " + str(float(sum(responseTimes))/len(finishedProcesses)))

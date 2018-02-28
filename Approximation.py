@@ -7,8 +7,10 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
   for p in processes:
-    print(p)
     p.approx = tau_naught
+    print(p.name)
+    print("Actual burst:", p.nextBurst)
+    print("Approximation:", p.approx)
 
   finishedProcesses = []
   cpuSched = ""
@@ -22,7 +24,6 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
     p = 0
     jump = 1
     for i, process in enumerate(processes):
-      print(process)
       if(process.arrivalTime == a):
         if(process.approx < b):
           b = process.approx
@@ -32,7 +33,6 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
         break
 
     p = processes.pop(p)
-    print("before", p)
     if(t < p.arrivalTime):
       t = p.arrivalTime
       maxSwitch -= 1
@@ -40,12 +40,8 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
     else:
       maxSwitch -= 1
       cpuSched += (str(t) + ":" + p.name + "  ")
-    print("after", p)
 
     if(p.new):
-      print(p.name)
-      print(p.arrivalTime)
-      print(t)
       p.stats[1] = t
 
     shorter = False
@@ -53,14 +49,12 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
       if(process.arrivalTime < p.arrivalTime + p.nextBurst):
         if(process.nextBurst < p.nextBurst-(process.arrivalTime-p.arrivalTime)):
           shorter  = True
-          print("Run", p.name)
           t, ioInfo = p.run(t, io, process.arrivalTime - p.arrivalTime)
           p.calcApprox(alpha)
           io = ioInfo[0]
           ioSched += ioInfo[1]
 
           for proc in processes[0:jump - 1 + i]:
-            print("CHANGE!")
             proc.arrivalTime = process.arrivalTime
           insertByArrival(processes, p)
           break
@@ -69,12 +63,18 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
 
     if(not shorter):
       t, ioInfo = p.run(t, io)
+
       p.calcApprox(alpha)
+      print()
+      print(p.name)
+      print("Actual burst:", p.nextBurst)
+      print("Approximation:", p.approx)
       io = ioInfo[0]
       ioSched += ioInfo[1]
 
       for process in processes:
-        process.arrivalTime = t
+        if(process.arrivalTime < t):
+          process.arrivalTime = t
       if(p.nextBurst):
         insertByArrival(processes, p)
       else:
@@ -82,9 +82,9 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
         finishedProcesses.append(p)
   
   cpuSched += (str(t) + ":END")
-  print("\t" + cpuSched)
+  print("\tCPU: " + cpuSched)
   ioSched += (str(io) + ":END")
-  print("\t" + ioSched)
+  print("\tIO: " + ioSched)
 
   printStats(finishedProcesses, processes)
 
@@ -92,7 +92,7 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
 if __name__ == '__main__':
   infile = open("in.txt")
 
-  alpha = float(input("Initial actual burst weight? "))
+  alpha = float(input("Actual burst weight? "))
   tau_naught = int(input("Initial prediction? "))
   processes = []
   for line in infile:
