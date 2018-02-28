@@ -20,12 +20,17 @@ class Process:
     self.stats = [int(p[1]), 0, 0]
 
   def __str__(self):
-    return ("Name: " + self.name + 
-    "  Arrival: " + str(self.arrivalTime) + 
-    "  Bursts " + str(self.bursts) + 
-    "  Priority " + str(self.priority) +
-    "  Next Burst " + str(self.nextBurst) + 
-    "  New? " + str(self.new))
+    # return ("Name: " + self.name + 
+    # "  Arrival: " + str(self.arrivalTime) + 
+    # "  Bursts " + str(self.bursts) + 
+    # "  Priority " + str(self.priority) +
+    # "  Next Burst " + str(self.nextBurst) + 
+    # "  New? " + str(self.new))
+    b = ""
+    for i in self.bursts:
+      b += str(i)
+      b += " "
+    return (self.name + "   " + str(self.arrivalTime) + "   " + b)
 
   def ioNonsense(self, io, ioStr):
     if(self.arrivalTime < io):
@@ -98,16 +103,20 @@ def insertByArrival(processes, p):
   processes.append(p)
 
 def printStats(finishedProcesses, processes):
+  # for p in finishedProcesses:
+  #   print(p.stats)
   turnaroundTimes = [process.stats[2]-process.stats[0] for process in finishedProcesses]
   responseTimes = [process.stats[1]-process.stats[0] for process in finishedProcesses]
   
   finiteFinished = True
   for p in processes:
     finiteFinished = p.repeating
+    if(not finiteFinished):
+      break
 
   if(len(finishedProcesses) == 0):
     print("No finished processes")
-  else if(not finiteFinished):
+  elif(not finiteFinished):
     print("Not all finite processes completed")
   else:
     print("\tAverage Turnaround Time: " + str(float(sum(turnaroundTimes))/len(finishedProcesses)))

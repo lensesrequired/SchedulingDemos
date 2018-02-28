@@ -33,7 +33,6 @@ def FCFS(processes):
 
 def RR(processes):
   timeSlice = int(input("Timeslice? "))
-  #timeSlice = 2
 
   processes.sort(key = operator.attrgetter('arrivalTime'))
   finishedProcesses = []
@@ -63,7 +62,7 @@ def RR(processes):
 
   print(str(t) + ":END")
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, [])
 
 def SJF(processes):
   print("SJF results:")
@@ -119,7 +118,7 @@ def SJF(processes):
   
   print(str(t) + ":END")
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, [])
 
 
 if __name__ == '__main__':

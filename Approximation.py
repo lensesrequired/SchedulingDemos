@@ -6,6 +6,10 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
   print("Aproximation results:")
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
+  for p in processes:
+    print(p)
+    p.approx = tau_naught
+
   finishedProcesses = []
   cpuSched = ""
   ioSched = ""
@@ -18,6 +22,7 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
     p = 0
     jump = 1
     for i, process in enumerate(processes):
+      print(process)
       if(process.arrivalTime == a):
         if(process.approx < b):
           b = process.approx
@@ -27,6 +32,7 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
         break
 
     p = processes.pop(p)
+    print("before", p)
     if(t < p.arrivalTime):
       t = p.arrivalTime
       maxSwitch -= 1
@@ -34,8 +40,12 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
     else:
       maxSwitch -= 1
       cpuSched += (str(t) + ":" + p.name + "  ")
+    print("after", p)
 
     if(p.new):
+      print(p.name)
+      print(p.arrivalTime)
+      print(t)
       p.stats[1] = t
 
     shorter = False
@@ -43,12 +53,14 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
       if(process.arrivalTime < p.arrivalTime + p.nextBurst):
         if(process.nextBurst < p.nextBurst-(process.arrivalTime-p.arrivalTime)):
           shorter  = True
+          print("Run", p.name)
           t, ioInfo = p.run(t, io, process.arrivalTime - p.arrivalTime)
           p.calcApprox(alpha)
           io = ioInfo[0]
           ioSched += ioInfo[1]
 
           for proc in processes[0:jump - 1 + i]:
+            print("CHANGE!")
             proc.arrivalTime = process.arrivalTime
           insertByArrival(processes, p)
           break
@@ -74,7 +86,7 @@ def SJFApprox(processes, maxSwitch, alpha, tau_naught):
   ioSched += (str(io) + ":END")
   print("\t" + ioSched)
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, processes)
 
 
 if __name__ == '__main__':
@@ -87,8 +99,6 @@ if __name__ == '__main__':
     line = line.strip()
     p = Process(line)
     processes.append(p)
-  for p in processes:
-    p.approx = tau_naught
 
   SJFApprox(copy.deepcopy(processes), 20, alpha, tau_naught)
 

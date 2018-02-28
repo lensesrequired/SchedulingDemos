@@ -2,7 +2,7 @@ from process import *
 import operator
 import copy
 
-def FCFS(processes, maxSwitch):
+def FCFSComplex(processes, maxSwitch):
   print("FCFS results:")
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
@@ -39,9 +39,9 @@ def FCFS(processes, maxSwitch):
   ioSched += (str(io) + ":END")
   print("\t" + ioSched)
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, processes)
 
-def RR(processes, maxSwitch):
+def RRComplex(processes, maxSwitch):
   timeSlice = int(input("Timeslice? "))
   #timeSlice = 2
 
@@ -83,9 +83,9 @@ def RR(processes, maxSwitch):
   ioSched += (str(io) + ":END")
   print("\t" + ioSched)
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, processes)
 
-def SJF(processes, maxSwitch):
+def SJFComplex(processes, maxSwitch):
   print("SJF results:")
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
@@ -151,11 +151,11 @@ def SJF(processes, maxSwitch):
         finishedProcesses.append(p)
   
   cpuSched += (str(t) + ":END")
-  print("\t" + cpuSched)
+  print("\tCPU: " + cpuSched)
   ioSched += (str(io) + ":END")
-  print("\t" + ioSched)
+  print("\tIO: " + ioSched)
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, processes)
 
 
 if __name__ == '__main__':

@@ -23,6 +23,9 @@ def SJFLottery(processes, maxSwitch, alpha, tau_naught):
   print("Lottery results:")
   processes.sort(key = operator.attrgetter('arrivalTime'))
 
+  for p in processes:
+    p.approx = tau_naught
+
   finishedProcesses = []
   cpuSched = ""
   ioSched = ""
@@ -107,7 +110,7 @@ def SJFLottery(processes, maxSwitch, alpha, tau_naught):
   ioSched += (str(io) + ":END")
   print("\t" + ioSched)
 
-  printStats(finishedProcesses)
+  printStats(finishedProcesses, processes)
 
 
 if __name__ == '__main__':
